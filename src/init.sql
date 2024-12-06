@@ -1,4 +1,7 @@
-CREATE TABLE IF NOT EXISTS users (id BIGINT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS users (id BIGINT PRIMARY KEY,
+                                  username TEXT NOT NULL,
+                                  guest_rating BIGINT DEFAULT NULL,
+                                  host_rating BIGINT DEFAULT NULL);
 
 CREATE TABLE IF NOT EXISTS authorized_users (id BIGINT PRIMARY KEY,
                                              sec_hash TEXT NOT NULL,
@@ -13,7 +16,8 @@ CREATE TABLE IF NOT EXISTS parties (id BIGINT PRIMARY KEY,
                                   longitude REAL NOT NULL,
                                   capacity BIGINT NOT NULL,
                                   attendees BIGINT DEFAULT 1,
-                                  start_time BIGINT NOT NULL);
+                                  start_time BIGINT NOT NULL,
+                                  visibility BIGINT NOT NULL DEFAULT 0);
 
 CREATE TABLE IF NOT EXISTS attendings (id BIGINT PRIMARY KEY,
                                        attendee_id BIGINT NOT NULL,

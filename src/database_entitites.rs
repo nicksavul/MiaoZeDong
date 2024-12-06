@@ -9,6 +9,9 @@ pub trait DatabaseEntity {
 
 pub struct User {
     id: u64, // User unique ID
+    username: String, // username
+    guest_rating: u64, // rating as guest
+    host_rating: u64 // rating as host
 }
 
 impl DatabaseEntity for User {
@@ -40,6 +43,7 @@ pub struct Party {
     capacity: u64, // Party capacity
     attendees: u64, // Number of attendees
     start_time: u64, // starting time of the party
+    visibility: u64, // type of party visibility
 }
 
 impl DatabaseEntity for Party {

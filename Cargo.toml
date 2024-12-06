@@ -5,4 +5,13 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[dependencies.rocket]
+version = "*"
+
+[dependencies.rusqlite]
+version = "0.32.0"
+features = ["bundled"]
+
+[dependencies.md5]
+version = "*"
+

@@ -15,3 +15,6 @@ features = ["bundled"]
 [dependencies.md5]
 version = "*"
 
+[dependencies.const_format]
+version = "*"
+

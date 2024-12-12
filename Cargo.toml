@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies.rocket]
 version = "*"
+features = ["json", "serde_json"]
 
 [dependencies.rusqlite]
 version = "0.32.0"
@@ -16,5 +17,8 @@ features = ["bundled"]
 version = "*"
 
 [dependencies.const_format]
+version = "*"
+
+[dependencies.serde]
 version = "*"
 

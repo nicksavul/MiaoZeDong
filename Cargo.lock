@@ -10,6 +10,7 @@ dependencies = [
  "md5",
  "rocket",
  "rusqlite",
+ "serde",
 ]
 
 [[package]]
@@ -981,6 +982,7 @@ dependencies = [
  "rocket_codegen",
  "rocket_http",
  "serde",
+ "serde_json",
  "state",
  "tempfile",
  "time",

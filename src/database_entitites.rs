@@ -4,6 +4,7 @@
 use std::sync::MutexGuard;
 use const_format::{concatcp, formatcp};
 use rocket::futures::StreamExt;
+use rocket::serde::{Deserialize, Serialize};
 use rusqlite::{Connection, Params, ParamsFromIter, Row};
 
 pub trait DatabaseEntity : Sized {
@@ -12,14 +13,15 @@ pub trait DatabaseEntity : Sized {
     const UPDATE_STATEMENT: &'static str;
 
     fn as_params(&self) -> impl Params;
-    fn set_id(&mut self, id: i64);
+    fn set_id(&mut self, id: Option<i64>);
     fn from_row(row: &rusqlite::Row) -> rusqlite::Result<Self>;
 
 
     fn create(&mut self, connection: &mut MutexGuard<Connection>) -> rusqlite::Result<i64> {
+        self.set_id(None);
         connection.execute(Self::CREATE_STATEMENT, self.as_params())?;
         let assigned_id: i64 = connection.last_insert_rowid();
-        self.set_id(assigned_id);
+        self.set_id(Some(assigned_id));
         Ok(assigned_id)
     }
     
@@ -49,7 +51,7 @@ pub trait DatabaseEntity : Sized {
 
 // =================================================================================================
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct User {
     id: Option<i64>, // User unique ID
     username: String, // username
@@ -71,8 +73,8 @@ impl DatabaseEntity for User {
          self.host_rating)
     }
 
-    fn set_id(&mut self, id: i64) {
-        self.id = Some(id);
+    fn set_id(&mut self, id: Option<i64>) {
+        self.id = id;
     }
 
     fn from_row(row: &Row) -> rusqlite::Result<Self> {
@@ -85,8 +87,16 @@ impl DatabaseEntity for User {
     }
 }
 
+impl User {
+    pub fn unique_username(&self, connection: &mut MutexGuard<Connection>) -> bool {
+       dbg!(connection.query_row(&format!("SELECT COUNT(*) FROM {} WHERE username = ?1", Self::TABLE_NAME),
+                            (&self.username, ),
+                            |r| r.get::<_, i64>(0)).unwrap()) == 0
+    }
+}
+
 // =================================================================================================
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AuthorizedUser {
     id: Option<i64>, // ID linking authorized user to known user
     sec_hash: String, // md5 hash of User-Agent||IpAddr
@@ -108,8 +118,8 @@ impl DatabaseEntity for AuthorizedUser {
         self.last_accessed)
     }
 
-    fn set_id(&mut self, id: i64) {
-        self.id = Some(id);
+    fn set_id(&mut self, id: Option<i64>) {
+        self.id = id;
     }
 
     fn from_row(row: &Row) -> rusqlite::Result<Self> {
@@ -124,7 +134,7 @@ impl DatabaseEntity for AuthorizedUser {
 }
 
 // =================================================================================================
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Party {
     id: Option<i64>, // Unique party ID
     host_id: i64, // User ID of party creator
@@ -161,8 +171,8 @@ impl DatabaseEntity for Party {
         )
     }
 
-    fn set_id(&mut self, id: i64) {
-        self.id = Some(id);
+    fn set_id(&mut self, id: Option<i64>) {
+        self.id = id;
     }
 
     fn from_row(row: &Row) -> rusqlite::Result<Self> {
@@ -198,7 +208,7 @@ impl Party {
 }
 
 // =================================================================================================
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Attending {
     id: Option<i64>, // Unique ID of the attending
     attendee_id: i64, // ID linking attending to the attendee
@@ -219,8 +229,8 @@ impl DatabaseEntity for Attending {
         )
     }
 
-    fn set_id(&mut self, id: i64) {
-        self.id = Some(id);
+    fn set_id(&mut self, id: Option<i64>) {
+        self.id = id;
     }
 
     fn from_row(row: &Row) -> rusqlite::Result<Self> {

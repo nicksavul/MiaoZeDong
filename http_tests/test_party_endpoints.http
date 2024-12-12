@@ -1,0 +1,23 @@
+### Get All Parties
+GET http://127.0.0.1:8000/parties
+
+### Get First Party
+GET http://127.0.0.1:8000/parties/1
+
+
+### Create A Party
+POST http://127.0.0.1:8000/parties
+Content-Type: application/json
+
+{
+    "id": 666,
+    "host_id": 2,
+    "title": "China Liberation Party!",
+    "description": "Bing Chillin; Social Credit Giveaway! Fuck Biden!",
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "capacity": 1000,
+    "attendees": 1,
+    "start_time": 0,
+    "visibility": 1
+  }

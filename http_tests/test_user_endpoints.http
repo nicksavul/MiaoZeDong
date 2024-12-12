@@ -1,0 +1,19 @@
+### Get All Users
+GET http://127.0.0.1:8000/users
+
+### Get First User
+GET http://127.0.0.1:8000/users/1
+
+
+### Create A User
+POST http://127.0.0.1:8000/users
+Content-Type: application/json
+
+{
+  "id": 420,
+  "username": "Leeeroy Jenkins",
+  "guest_rating": 0,
+  "host_rating": 9999
+}
+
+

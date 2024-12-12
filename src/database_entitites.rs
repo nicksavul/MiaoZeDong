@@ -3,15 +3,17 @@
 
 use std::sync::MutexGuard;
 use const_format::{concatcp, formatcp};
-use rusqlite::{Connection, Params, ParamsFromIter};
+use rocket::futures::StreamExt;
+use rusqlite::{Connection, Params, ParamsFromIter, Row};
 
-pub trait DatabaseEntity {
+pub trait DatabaseEntity : Sized {
     const TABLE_NAME: &'static str;
     const CREATE_STATEMENT: &'static str;
     const UPDATE_STATEMENT: &'static str;
 
     fn as_params(&self) -> impl Params;
     fn set_id(&mut self, id: i64);
+    fn from_row(row: &rusqlite::Row) -> rusqlite::Result<Self>;
 
 
     fn create(&mut self, connection: &mut MutexGuard<Connection>) -> rusqlite::Result<i64> {
@@ -25,11 +27,29 @@ pub trait DatabaseEntity {
         connection.execute(Self::UPDATE_STATEMENT, self.as_params())
     }
 
+    fn get_all(connection: &mut MutexGuard<Connection>) -> rusqlite::Result<Vec<Self>> {
+        let mut statement = connection.prepare(&format!("SELECT * FROM {};", Self::TABLE_NAME))?;
+        let mut query = statement.query_map((), |row| {Self::from_row(row)})?;
+        let mut all: Vec<Self> = Vec::new();
+
+        for item in query {
+            all.push(item?);
+        }
+
+        Ok(all)
+    }
+
+    fn get_by_id(connection: &mut MutexGuard<Connection>, id: i64) -> rusqlite::Result<Self> {
+        let mut statement = connection.prepare(&format!("SELECT * FROM {} WHERE id = ?1;", Self::TABLE_NAME))?;
+        statement.query_row((id,), |row| {Self::from_row(row)})
+
+    }
 
 }
 
 // =================================================================================================
 
+#[derive(Debug)]
 pub struct User {
     id: Option<i64>, // User unique ID
     username: String, // username
@@ -54,10 +74,19 @@ impl DatabaseEntity for User {
     fn set_id(&mut self, id: i64) {
         self.id = Some(id);
     }
+
+    fn from_row(row: &Row) -> rusqlite::Result<Self> {
+        Ok(Self {
+            id: row.get(0)?,
+            username: row.get(1)?,
+            guest_rating: row.get(2)?,
+            host_rating: row.get(3)?
+        })
+    }
 }
 
 // =================================================================================================
-
+#[derive(Debug)]
 pub struct AuthorizedUser {
     id: Option<i64>, // ID linking authorized user to known user
     sec_hash: String, // md5 hash of User-Agent||IpAddr
@@ -83,12 +112,19 @@ impl DatabaseEntity for AuthorizedUser {
         self.id = Some(id);
     }
 
-
+    fn from_row(row: &Row) -> rusqlite::Result<Self> {
+        Ok(Self {
+            id: row.get(0)?,
+            sec_hash: row.get(1)?,
+            auth_key: row.get(2)?,
+            last_accessed: row.get(3)?
+        })
+    }
 
 }
 
 // =================================================================================================
-
+#[derive(Debug)]
 pub struct Party {
     id: Option<i64>, // Unique party ID
     host_id: i64, // User ID of party creator
@@ -128,10 +164,41 @@ impl DatabaseEntity for Party {
     fn set_id(&mut self, id: i64) {
         self.id = Some(id);
     }
+
+    fn from_row(row: &Row) -> rusqlite::Result<Self> {
+        Ok(Self {
+            id: row.get(0)?,
+            host_id: row.get(1)?,
+            title: row.get(2)?,
+            description: row.get(3)?,
+            latitude: row.get(4)?,
+            longitude: row.get(5)?,
+            capacity: row.get(6)?,
+            attendees: row.get(7)?,
+            start_time: row.get(8)?,
+            visibility: row.get(9)?,
+        })
+    }
+}
+
+impl Party {
+    pub fn
+    get_attendees(&self, dbconn: &mut MutexGuard<Connection>) -> rusqlite::Result<Vec<User>> {
+        let mut attendees: Vec<User> = Vec::new();
+        let mut statement = dbconn.prepare("SELECT * FROM users LEFT JOIN attendings ON users.id = attendings.attendee_id where attendings.party_id = ?1;")?;
+        let mut query = statement.query_map([self.id], |r| User::from_row(r))?;
+
+        for row in query {
+            attendees.push(row?);
+        }
+
+        Ok(attendees)
+    }
+
 }
 
 // =================================================================================================
-
+#[derive(Debug)]
 pub struct Attending {
     id: Option<i64>, // Unique ID of the attending
     attendee_id: i64, // ID linking attending to the attendee
@@ -154,6 +221,14 @@ impl DatabaseEntity for Attending {
 
     fn set_id(&mut self, id: i64) {
         self.id = Some(id);
+    }
+
+    fn from_row(row: &Row) -> rusqlite::Result<Self> {
+        Ok(Self {
+            id: row.get(0)?,
+            attendee_id: row.get(1)?,
+            party_id: row.get(2)?,
+        })
     }
 }
 
@@ -264,13 +339,26 @@ mod test {
 
 
 
-
-
         xi_goes_out.create(&mut dbcon).unwrap();
 
         dio.create(&mut dbcon).unwrap();
         xi_goes_out.attendee_id = dio.id.unwrap();
         xi_goes_out.update(&mut dbcon).unwrap();
 
+    }
+
+    #[test]
+    fn test_from_row() {
+        let mut dbcon = DB_CONNECTION.lock().unwrap();
+        println!("{:?}", dbcon.query_row("SELECT * FROM users WHERE id = 1;", (), |r| {User::from_row(r)}).unwrap());
+    }
+
+
+    #[test]
+    fn test_get_all() {
+        let mut dbcon = DB_CONNECTION.lock().unwrap();
+        User::get_all(&mut dbcon).unwrap().iter().for_each(|r| println!("user: {:?}", r));
+        Party::get_all(&mut dbcon).unwrap().iter().for_each(|r| println!("party: {:?}", r));
+        Attending::get_all(&mut dbcon).unwrap().iter().for_each(|r| println!("attending: {:?}", r));
     }
 }

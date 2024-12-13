@@ -1,4 +1,5 @@
 // This file contains definitions for entities stored in the database
+// TODO: typedef ID
 
 
 use std::sync::MutexGuard;
@@ -89,9 +90,22 @@ impl DatabaseEntity for User {
 
 impl User {
     pub fn unique_username(&self, connection: &mut MutexGuard<Connection>) -> bool {
-       dbg!(connection.query_row(&format!("SELECT COUNT(*) FROM {} WHERE username = ?1", Self::TABLE_NAME),
+       connection.query_row(&format!("SELECT COUNT(*) FROM {} WHERE username = ?1", Self::TABLE_NAME),
                             (&self.username, ),
-                            |r| r.get::<_, i64>(0)).unwrap()) == 0
+                            |r| r.get::<_, i64>(0)).unwrap() == 0
+    }
+
+
+
+    pub fn get_upcoming_parties(&self, connection: &mut MutexGuard<Connection>) -> rusqlite::Result<Vec<Party>> {
+        let mut parties: Vec<Party> = Vec::new();
+        let mut statement = connection.prepare("SELECT * FROM parties LEFT JOIN attendings ON party.id = attendings.party_id where attendings.attendee_id = ?1;")?;
+        let mut query = statement.query_map([self.id], |r| Party::from_row(r))?;
+        // TODO: add upcoming check
+        for row in query {
+            parties.push(row?);
+        }
+        Ok(parties)
     }
 }
 
@@ -239,6 +253,17 @@ impl DatabaseEntity for Attending {
             attendee_id: row.get(1)?,
             party_id: row.get(2)?,
         })
+    }
+
+}
+
+impl Attending {
+    pub fn new(pid: i64, uid: i64) -> Self {
+        Self {
+            id: None,
+            party_id: pid,
+            attendee_id: uid
+        }
     }
 }
 

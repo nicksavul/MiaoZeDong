@@ -4,7 +4,6 @@ GET http://127.0.0.1:8000/parties
 ### Get First Party
 GET http://127.0.0.1:8000/parties/1
 
-
 ### Create A Party
 POST http://127.0.0.1:8000/parties
 Content-Type: application/json
@@ -21,3 +20,24 @@ Content-Type: application/json
     "start_time": 0,
     "visibility": 1
   }
+
+### Update A Party
+PUT http://127.0.0.1:8000/parties/2
+Content-Type: application/json
+
+{
+    "id": 666,
+    "host_id": 2,
+    "title": "China Liberation Party! (Takeover)",
+    "description": "Bing Chillin; Social Credit Giveaway! Fuck Biden!",
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "capacity": 100,
+    "attendees": 900,
+    "start_time": 0,
+    "visibility": 1
+  }
+
+
+### Get attendees of party
+GET http://127.0.0.1:8000/parties/2/users

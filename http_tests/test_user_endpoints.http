@@ -4,7 +4,6 @@ GET http://127.0.0.1:8000/users
 ### Get First User
 GET http://127.0.0.1:8000/users/1
 
-
 ### Create A User
 POST http://127.0.0.1:8000/users
 Content-Type: application/json
@@ -15,5 +14,25 @@ Content-Type: application/json
   "guest_rating": 0,
   "host_rating": 9999
 }
+
+### Update A User
+PUT http://127.0.0.1:8000/users/5
+Content-Type: application/json
+
+{
+  "id": 420,
+  "username": "Leeeroy Jenkins (dead)",
+  "guest_rating": 0,
+  "host_rating": 9999
+}
+
+### Get guests of a party
+GET http://127.0.0.1:8000/users/attending/3
+
+### Set User 4 attending party 2
+POST http://127.0.0.1:8000/parties/2/users/4
+
+###
+GET http://127.0.0.1:8000/users/4/parties
 
 

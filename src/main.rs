@@ -18,6 +18,11 @@ fn rocket() -> _ {
         endpoint_get_party,
         endpoint_get_all_parties,
         endpoint_create_party,
-        endpoint_create_user])
+        endpoint_create_user,
+        endpoint_update_user,
+        endpoint_update_party,
+        endpoint_get_parties_of_user,
+        endpoint_get_users_of_party,
+        endpoint_set_attending])
 }
 

@@ -5,7 +5,7 @@ GET http://127.0.0.1:8000/parties
 GET http://127.0.0.1:8000/parties/1
 
 ### Create new party (id can be set to null, or anything - it's set automatically)
-POST http://127.0.0.1:8000/parties
+POST http://3.253.44.33:80/parties
 Content-Type: application/json
 
 {

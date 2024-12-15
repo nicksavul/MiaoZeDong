@@ -62,6 +62,11 @@ pub fn endpoint_update_user(id: u64, data: Json<User>) -> Json<User> {
 }
 
 
+#[get("/ping")]
+pub fn ping() -> &'static str {
+    "pong!"
+}
+
 
 
 

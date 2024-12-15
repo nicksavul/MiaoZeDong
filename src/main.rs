@@ -23,6 +23,7 @@ fn rocket() -> _ {
         endpoint_update_party,
         endpoint_get_parties_of_user,
         endpoint_get_users_of_party,
-        endpoint_set_attending])
+        endpoint_set_attending,
+    ping])
 }
 

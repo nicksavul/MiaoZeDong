@@ -1,10 +1,10 @@
-### Get All Parties
+### Get all existing parties
 GET http://127.0.0.1:8000/parties
 
-### Get First Party
+### Get party at id = 1
 GET http://127.0.0.1:8000/parties/1
 
-### Create A Party
+### Create new party (id can be set to null, or anything - it's set automatically)
 POST http://127.0.0.1:8000/parties
 Content-Type: application/json
 
@@ -21,7 +21,7 @@ Content-Type: application/json
     "visibility": 1
   }
 
-### Update A Party
+### Update existing party at id = 2
 PUT http://127.0.0.1:8000/parties/2
 Content-Type: application/json
 
@@ -39,5 +39,5 @@ Content-Type: application/json
   }
 
 
-### Get attendees of party
+### Get attendees of party at id = 2
 GET http://127.0.0.1:8000/parties/2/users

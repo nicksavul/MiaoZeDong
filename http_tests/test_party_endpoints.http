@@ -1,18 +1,18 @@
 ### Get all existing parties
-GET http://127.0.0.1:8000/parties
+GET http://167.71.70.141/parties
 
 ### Get party at id = 1
-GET http://127.0.0.1:8000/parties/1
+GET http://167.71.70.141/parties/1
 
 ### Create new party (id can be set to null, or anything - it's set automatically)
-POST http://3.253.44.33:80/parties
+POST http://167.71.70.141/parties
 Content-Type: application/json
 
 {
     "id": 666,
     "host_id": 2,
-    "title": "China Liberation Party!",
-    "description": "Bing Chillin; Social Credit Giveaway! Fuck Biden!",
+    "title": "Hiroshima Rave",
+    "description": "WTF is a KILOMETER! RAHHHHHHH",
     "latitude": 0.0,
     "longitude": 0.0,
     "capacity": 1000,
@@ -28,8 +28,8 @@ Content-Type: application/json
 {
     "id": 666,
     "host_id": 2,
-    "title": "China Liberation Party! (Takeover)",
-    "description": "Bing Chillin; Social Credit Giveaway! Fuck Biden!",
+    "title": "Big Hiroshima Firework Show",
+    "description": "WTF is a kilometer! RAAAAAAAAHHHHHHHHHHH!",
     "latitude": 0.0,
     "longitude": 0.0,
     "capacity": 100,
@@ -40,4 +40,4 @@ Content-Type: application/json
 
 
 ### Get attendees of party at id = 2
-GET http://127.0.0.1:8000/parties/2/users
+GET http://167.71.70.141/parties/2/users
